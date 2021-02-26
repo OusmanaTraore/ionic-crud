@@ -61,7 +61,142 @@ app.use(function(req, res, next)
    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization');
     next();
 });
+/** 
+ * Write the routes under this line
+ * -------------------------
+ */
+apiRouter.get('/gallery', function(req, res) 
+{
+ /* Use the gallery model and access Mongoose's API to 
+      retrieve ALL MongoDB documents whose displayed field
+      has a value of true */
+      gallery.find({ displayed: true }, (err, recs) =>
+      {
+   
+         /* If we encounter an error log this to the console */
+         if (err) 
+         {
+            console.dir(err);
+         }
+   
+         /* Send the retrieve documents based as JSON encoded 
+            data with the Router Response object */
+         res.json({ records: recs });
+   
+      });
+});
 
+
+
+
+apiRouter.post('/gallery', function(req, res) 
+{
+ /* Retrieve the posted data from the Request object and assign
+      this to variables */
+      var name 			=	req.body.name,
+      description 		=	req.body.description,
+      thumbnail 		=	req.body.thumbnail,
+      displayed 		=	req.body.displayed,
+      date 			=	Date.now();
+
+
+  /* Use the gallery model to access the Mongoose API method to
+     add the supplied data as a new document to the MongoDB
+     database */
+  gallery.create({ name 			: name,  
+                      description 	: description, 
+                      thumbnail 		: thumbnail, 
+                      displayed 		: displayed, 
+                      date 			: date },
+                   function (err, small) 
+  {
+
+     /* If we encounter an error log this to the console*/
+     if (err) 
+     {
+        console.dir(err);
+     }
+
+     /* Document was successfully created so send a JSON encoded 
+        success message back with the Router Response object */
+     res.json({ message: 'success' });
+
+  });
+
+});
+
+
+
+/* Handle PUT requests with expected recordID parameter */
+apiRouter.put('/gallery/:recordID', function(req, res) 
+{
+/* Use the gallery model to access the Mongoose API method and
+      find a specific document within the MongoDB database based 
+      on the document ID value supplied as a route parameter */
+      gallery.findById({ _id: req.params.recordID }, (err, recs) =>
+      {
+   
+         /* If we encounter an error we log this to the console */
+         if (err) 
+         {
+            console.dir(err);
+         }
+         else 
+         {
+            /* Assign the posted values to the respective fields for the retrieved
+               document */
+              recs.name 				= req.body.name 		|| recs.name;
+            recs.description 		= req.body.description 	|| recs.description;
+            recs.thumbnail  		= req.body.thumbnail	|| recs.thumbnail;
+            recs.displayed 		= req.body.displayed 	|| recs.displayed;
+    
+            /* Save the updated document back to the database */
+            recs.save((err, recs) => 
+            {
+               /* If we encounter an error send the details as a HTTP response */
+               if (err) 
+               {
+                  res.status(500).send(err)
+               }
+   
+               /* If all is good then send a JSON encoded map of the retrieved data
+                  as a HTTP response */
+               res.json({ records: recs });
+            });
+         }     
+   
+      });
+});
+
+
+
+/* Handle DELETE requests with expected recordID parameter */
+apiRouter.delete('/gallery/:recordID', function(req, res) 
+{
+  /* Use the gallery model to access the Mongoose API method and
+      find & remove a specific document within the MongoDB database 
+      based on the document ID value supplied as a route parameter */
+      gallery.findByIdAndRemove({ _id: req.params.recordID }, (err, recs) =>
+      {
+   
+         /* If we encounter an error we log this to the console */
+         if (err) 
+         {
+            console.dir(err);
+         }
+   
+   
+         /* If all is good then send a JSON encoded map of the removed data
+            as a HTTP response */
+         res.json({ records: recs });
+   
+      });
+});
+
+/** 
+ * -------------------------
+ * Write the routes above this line
+ */
 /* Mount the specified Middleware function based on matching path 
    ALL Http requests will be sent to /api followed by whatever the 
    requested endpoint is
