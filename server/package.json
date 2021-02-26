@@ -1,0 +1,17 @@
+{
+  "name": "nodeserver",
+  "version": "1.0.0",
+  "description": "back server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ousmana Traoré",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "expres": "0.0.5",
+    "mongoose": "^5.11.18",
+    "pdfkit": "^0.11.0"
+  }
+}
